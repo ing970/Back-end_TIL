@@ -137,7 +137,7 @@ public class Welcome {
 				System.out.println("장바구니에 추가하시겠습니까? Y | N ");
 				str = input.nextLine();
 			
-       			// 입력값 (Y|N) 대문자 변경하여 Y이면 도서가 장바구니에 추가되었습니다 출력.
+       			// 입력값 (Y | N) 대문자 변경하여 "Y"이면, "도서가 장바구니에 추가되었습니다" 출력.
 				if(str.toUpperCase().equals("Y")) {
 					System.out.println(book[numId][0] + "도서가 장바구니에 추가되었습니다.");
 				}// end if
@@ -162,6 +162,7 @@ public class Welcome {
 	public static void menuExit() {
 		System.out.println("8. 종료");
 	}
+	// 도서 정보 정보
 	public static void BookList(String[][] book) {
 		
 		book[0][0] = "ISBN1234";
