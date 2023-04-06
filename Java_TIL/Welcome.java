@@ -1,8 +1,12 @@
 import java.util.Scanner;
+
 public class Welcome {
 	static final int NUM_BOOK = 3;
 	static final int NUM_ITEM = 7;
 	static Scanner input = new Scanner(System.in);
+	static CartItem[] mCartItem = new CartItem[NUM_BOOK];
+	static int mCartCount = 0;
+	static User mUser;
 	
 	public static void main(String[] args) {
 		// 도서 정보 'mBOOK'을 2차원 배열로 생성
@@ -17,6 +21,9 @@ public class Welcome {
 		// 연락처 입력
 		System.out.print("연락처를 입력하세요: ");
 		int userMobile = input.nextInt();
+		
+		// 사용자 정보 저장하기 
+		mUser = new User(userName, userMobile);
 		
 		// 인사말 정의
 		String greeting = "Welcome to Shopping Mall";
@@ -37,8 +44,8 @@ public class Welcome {
 		 // 메뉴 선택
 		System.out.println("메뉴 번호를 선택해주세요. ");
 		int n = input.nextInt();
-		if (n < 1 && n > 8) {
-			System.out.println("1부터 8까지의 숫자를 입력하세요.");
+		if (n < 1 && n > 9) {
+			System.out.println("1부터 9까지의 숫자를 입력하세요.");
 		}
 		
 		// 메뉴 선택에 따른 화면 전환
@@ -68,6 +75,9 @@ public class Welcome {
 				case 8:
 					menuExit();		
 					break;
+				case 9:
+					menuAdminLogin();
+					break;
 				
 			}
 		 }
@@ -82,14 +92,27 @@ public class Welcome {
 		System.out.println("2. 장바구니 상품 목록 보기 \t5. 장바구니의 항목 수량 줄이기");
 		System.out.println("3. 장바구니 비우기 \t\t6. 장바구니의 항목 삭제하기");
 		System.out.println("7. 영수증 표시하기 \t\t8. 종료");
+		System.out.println("9. 관리자 로그인");
 		System.out.println("********************************************");
 	}
+	// 저장되어있는 고객의 이름과 전화번호를 불러온다.
 	public static void menuGuestInfo(String name, int mobile) {
 		System.out.println("현재 고객 정보: ");
-		System.out.println("이름: " + name + "\t연락처: " + mobile);
+		System.out.println("이름: " + mUser.getName() + ", 연락처: " + mUser.getPhone());
+		
 	}
-	public static void menuCartItemList() {
+	// 장바구니 추가 장바구니 리스트 출력
+	public static void menuCartItemList() {	
 		System.out.println("장바구 상품 목록보기: ");
+		System.out.println("==============================================");
+		System.out.println("   도서ID \t:    수량 \t:    합");
+		for (int i = 0; i < mCartCount; i++) {
+			System.out.print("    " + mCartItem[i].getBookID() + " \t: ");
+			System.out.print("    " + mCartItem[i].getQuantity() + " \t: ");
+			System.out.print("  " + mCartItem[i].getTotalPrice());
+			System.out.println("   ");
+		}
+		System.out.println("==============================================");
 	}
 	public static void menuCartClear() {
 		System.out.println("장바구니 비우기");
@@ -140,6 +163,11 @@ public class Welcome {
        			// 입력값 (Y | N) 대문자 변경하여 "Y"이면, "도서가 장바구니에 추가되었습니다" 출력.
 				if(str.toUpperCase().equals("Y")) {
 					System.out.println(book[numId][0] + "도서가 장바구니에 추가되었습니다.");
+					// 장바구니에 넣
+					if (!isCartInBook(book[numId][0]))
+						mCartItem[mCartCount++] = new CartItem(book[numId]);
+	
+					
 				}// end if
 				quit = true;
 				
@@ -161,6 +189,28 @@ public class Welcome {
 	}
 	public static void menuExit() {
 		System.out.println("8. 종료");
+	}
+	public static void menuAdminLogin() {
+		System.out.println("관리자 정보를 입력하세요.");
+		Scanner input = new Scanner(System.in);
+		
+		// 아이디 입력:
+		System.out.print("아이디: ");
+		String adminId = input.next();
+		
+		// 비밀번호 입력
+		System.out.print("비밀번호: ");
+		String adminPw = input.next();
+		
+		// admin에 mUser로 저장한 이름과 전화번호를 불러온다.
+		Admin admin = new Admin(mUser.getName(), mUser.getPhone());
+		// 만약 입력한 아이디와 비밀번호가 Admin 파 안에있는 아이디와 비밀번호가 일치한다면.
+		if (adminId.equals(admin.getId()) && adminPw.equals(admin.getPassword())) {
+			System.out.println("이름: " + admin.getName() + "   연락처: " + admin.getPhone());
+			System.out.println("아이디: " + admin.getId() + "    비밀번호: " + admin.getPassword());
+		}else {
+			System.out.println("관리자 정보가 일치하지 않습니다.");
+		}
 	}
 	// 도서 정보 정보
 	public static void BookList(String[][] book) {
@@ -188,5 +238,18 @@ public class Welcome {
 		book[2][4] = "컴퓨터 사고룍을 키우는 블록 코딩";
 		book[2][5] = "컴퓨터입문";
 		book[2][6] = "2019/06/10";
+	}
+	public static boolean isCartInBook(String bookId) {
+		boolean flag = false;
+		for( int i = 0; i < mCartCount; i++) {
+			
+			// 장바구니에 이미 존재하는 책이면 quantity(개수) 1증가 true 리턴
+			if (bookId.equals(mCartItem[i].getBookID())) {
+				mCartItem[i].setQuantity(mCartItem[i].getQuantity() + 1);
+				flag = true;
+			}
+		}
+		// 장바구니에 존재 하지 않는 책이면 false 리턴
+		return flag;
 	}
 }
