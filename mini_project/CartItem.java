@@ -1,10 +1,11 @@
 
 
+
 public class CartItem {
 	// 장바구니에 담은 책 1권 정보
 	// private String[] itemBook = new String[7];
 	
-	// 장바구니 담은 책 정
+	// 장바구니 담은 책 정보
 	private Book itemBook;
 	// 장바구니에 담은 책 ISBN.
 	private String bookID;

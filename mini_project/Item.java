@@ -1,4 +1,4 @@
-
+// 주요 도서 정보 관리 
 public abstract class Item {
 	String bookId;
 	String name;

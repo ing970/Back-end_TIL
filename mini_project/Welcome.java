@@ -4,13 +4,12 @@ public class Welcome {
 	static final int NUM_BOOK = 3;
 	static final int NUM_ITEM = 7;
 	static Scanner input = new Scanner(System.in);
-	static CartItem[] mCartItem = new CartItem[NUM_BOOK];
-	static int mCartCount = 0;
+	static Cart mCart = new Cart();
 	static User mUser;
 	
 	public static void main(String[] args) {
-		// 도서 정보 'mBOOK'을 2차원 배열로 생성
-		String[][] mBOOK = new String[NUM_BOOK][NUM_ITEM];
+
+		Book[] mBookList = new Book[NUM_BOOK];
 		// 입력 함수 호
 		Scanner input = new Scanner(System.in);
 		
@@ -61,7 +60,7 @@ public class Welcome {
 					menuCartClear();
 					break;
 				case 4:
-					menuCartAddItem(mBOOK);
+					menuCartAddItem(mBookList);
 					break;
 				case 5:
 					menuCartRemoveItemCount();
@@ -103,32 +102,32 @@ public class Welcome {
 	}
 	// 장바구니 추가 장바구니 리스트 출력
 	public static void menuCartItemList() {	
-		System.out.println("장바구 상품 목록보기: ");
-		System.out.println("==============================================");
-		System.out.println("   도서ID \t:    수량 \t:    합");
-		for (int i = 0; i < mCartCount; i++) {
-			System.out.print("    " + mCartItem[i].getBookID() + " \t: ");
-			System.out.print("    " + mCartItem[i].getQuantity() + " \t: ");
-			System.out.print("  " + mCartItem[i].getTotalPrice());
-			System.out.println("   ");
-		}
-		System.out.println("==============================================");
+		if (mCart.mCartCount >= 0)
+			mCart.printCart();
 	}
+	// 장바구니 비우기
 	public static void menuCartClear() {
-		System.out.println("장바구니 비우기");
+		if (mCart.mCartCount == 0) 
+			System.out.println("장바구니에 항목이 없습니다.");
+		else {
+			System.out.println("장바구니의 모든 항목을 삭제하겠습니까? Y | N");
+//			Scanner input = new Scanner(System.in);
+			String str = input.nextLine();
+			
+			if (str.toUpperCase().equals("Y")) {
+				System.out.println("장바구니의 모든 항목을 삭제했습니다.");
+				mCart.deleteBook();
+			}
+		}
 	}
 	// 도서 목록 표시하기
-	public static void menuCartAddItem(String[][] book) {
+	public static void menuCartAddItem(Book[] booklist) {
 		
 		// BookList(도서정보) 불러옴.
-		BookList(book);
+		BookList(booklist);
 		
 		// 도서 정보 출력.
-		for(int i = 0; i < NUM_BOOK; i++) {
-			for(int j = 0; j < NUM_ITEM; j++)
-				System.out.print(book[i][j] + "|");
-			System.out.println(" ");
-		}// end for
+		mCart.printBookList(booklist);
 		
 		// while 문 시작.
 		boolean quit = false;
@@ -146,7 +145,7 @@ public class Welcome {
 			for(int i = 0; i < NUM_BOOK; i++) {
 				
 				// 입력 받은 Id가 도서정보와 일치하면, i값을 반환하고 나온다.
-				if(str.equals(book[i][0])) {
+				if(str.equals(booklist[i].getBookId())) {
 					numId = i;
 					flag = true;
 					break;
@@ -162,28 +161,56 @@ public class Welcome {
 			
        			// 입력값 (Y | N) 대문자 변경하여 "Y"이면, "도서가 장바구니에 추가되었습니다" 출력.
 				if(str.toUpperCase().equals("Y")) {
-					System.out.println(book[numId][0] + "도서가 장바구니에 추가되었습니다.");
+					System.out.println(booklist[numId].getBookId() + "도서가 장바구니에 추가되었습니다.");
 					// 장바구니에 넣
-					if (!isCartInBook(book[numId][0]))
-						mCartItem[mCartCount++] = new CartItem(book[numId]);
-	
-					
+					if (!isCartInBook(booklist[numId].getBookId())) {
+						mCart.insertBook(booklist[numId]);
 				}// end if
 				quit = true;
-				
-			// Id값이 도서정보와 다르면, 출력.
-			}else {
+			  }else {
 				System.out.println("다시 입력해 주세요.");
-			}// end if, else
+		    }// end else
 				
-		}//end while
-	}
+		  }//end if(flag)
+	   }//end while
+    }
 	public static void menuCartRemoveItemCount() {
 		System.out.println("5. 장바구니의 항목 수량 줄이기");
 	}
 	public static void menuCartRemoveItem() {
-		System.out.println("6. 장바구니의 항목 삭제하기");
-	}
+//		System.out.println("6. 장바구니의 항목 삭제하기");
+		if(mCart.mCartCount == 0) {
+			System.out.println("장바구니에 항목이 없습니다.");
+		}else {
+			menuCartItemList();
+			boolean quit = false;
+			while (!quit) {
+				System.out.println("장바구니에서 삭제할 도서의 ID를 입력하세요: ");
+//				Scanner input = new Scanner(System.in);
+				String str = input.nextLine();
+				boolean flag = false;
+				int numId = -1;
+				
+				for (int i = 0; i < mCart.mCartCount; i++) {
+					if (str.equals(mCart.mCartItem[i].getBookID())) {
+						numId = i;
+						flag = true;
+						break;
+					}
+				}
+			if (flag) {
+				System.out.println("장바구니의 항목을 삭제하겠습니까? Y | N");
+				str = input.nextLine();
+				if (str.toUpperCase().equals("Y")) {
+					System.out.println(mCart.mCartItem[numId].getBookID() + "장바구니에서 도서가 삭제되었습니다.");
+					mCart.removeCart(numId);
+				}
+			    quit = true;
+			  }
+			else System.out.println("다시 입력해 주세요.");
+		  }//end while
+		}// end else
+	}// end public
 	public static void menuCartBill() {
 		System.out.println("7. 영수증 표시하기");
 	}
@@ -192,7 +219,7 @@ public class Welcome {
 	}
 	public static void menuAdminLogin() {
 		System.out.println("관리자 정보를 입력하세요.");
-		Scanner input = new Scanner(System.in);
+//		Scanner input = new Scanner(System.in);
 		
 		// 아이디 입력:
 		System.out.print("아이디: ");
@@ -213,43 +240,26 @@ public class Welcome {
 		}
 	}
 	// 도서 정보 정보
-	public static void BookList(String[][] book) {
+	public static void BookList(Book[] booklist) {
+		booklist[0] = new Book("ISBN1234", "쉽게 배우는 JSP 웹 프로그래밍", 27000);
+		booklist[0].setAuthor("송미영");
+		booklist[0].setDescription("단계별로 쇼핑몰을 구현하며 배우는 JSP 웹 프로그래밍");
+		booklist[0].setCategory("IT전문서");
+		booklist[0].setReleaseDate("2018/10/08");
 		
-		book[0][0] = "ISBN1234";
-		book[0][1] = "쉽게 배우는 JSP 웹 프로그래밍";
-		book[0][2] = "27000";
-		book[0][3] = "송미영";
-		book[0][4] = "단계별로 쇼핑몰을 구현하며 배우는 JSP 웹 프로그래밍";
-		book[0][5] = "IT전문서";
-		book[0][6] = "2018/10/08";
+		booklist[1] = new Book("ISBN1235", "안드로이드 프로그래밍", 33000); 
+		booklist[1].setAuthor("우재남");
+		booklist[1].setDescription("실습 단계별 명쾌한 멘토링");
+		booklist[1].setCategory("IT전문서");
+		booklist[1].setReleaseDate("2022/01/22");
 		
-		book[1][0] = "ISBN1235";
-		book[1][1] = "안드로이드 프로그래밍";
-		book[1][2] = "33000";
-		book[1][3] = "우재남";
-		book[1][4] = "실습 단계별 명쾌한 멘토링";
-		book[1][5] = "IT전문서";
-		book[1][6] = "2022/01/22";
-		
-	    book[2][0] = "ISBN1236";
-		book[2][1] = "스크래치";
-		book[2][2] = "22000";
-		book[2][3] = "고광일";
-		book[2][4] = "컴퓨터 사고룍을 키우는 블록 코딩";
-		book[2][5] = "컴퓨터입문";
-		book[2][6] = "2019/06/10";
+		booklist[2] = new Book("ISBN1236", "스크래치", 22000);
+		booklist[2].setAuthor("고광일");
+		booklist[2].setDescription("컴퓨터 사고룍을 키우는 블록 코딩");
+		booklist[2].setCategory("컴퓨터입문");
+		booklist[2].setReleaseDate("2019/06/10");
 	}
 	public static boolean isCartInBook(String bookId) {
-		boolean flag = false;
-		for( int i = 0; i < mCartCount; i++) {
-			
-			// 장바구니에 이미 존재하는 책이면 quantity(개수) 1증가 true 리턴
-			if (bookId.equals(mCartItem[i].getBookID())) {
-				mCartItem[i].setQuantity(mCartItem[i].getQuantity() + 1);
-				flag = true;
-			}
-		}
-		// 장바구니에 존재 하지 않는 책이면 false 리턴
-		return flag;
+		return mCart.isCartInBook(bookId);
 	}
 }

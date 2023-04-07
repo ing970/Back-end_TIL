@@ -35,7 +35,7 @@ public class Book extends Item{
 	public String getCategory() {return category;}
 	public void setCategory(String category) {this.category = category;}
 	
-	public String getRelesasDate() {return releaseDate;}
+	public String getReleaseDate() {return releaseDate;}
 	public void setReleaseDate(String releaseDate) {this.releaseDate = releaseDate;}
 	
 }
