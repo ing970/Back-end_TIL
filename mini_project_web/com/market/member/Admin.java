@@ -1,3 +1,4 @@
+package ch_6.com.market.member;
 
 public class Admin extends Person {
 	private String id = "Admin";

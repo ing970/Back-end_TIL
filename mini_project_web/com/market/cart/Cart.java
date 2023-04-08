@@ -1,4 +1,6 @@
+package ch_6.com.market.cart;
 
+import ch_6.com.market.bookitem.Book;
 
 
 // 장바구니 관리
@@ -6,9 +8,9 @@ public class Cart implements CartInterface {
 	// 전체 책 종류 수
 	static final int NUM_BOOK = 3;
 	// 장바구니
-	CartItem[] mCartItem = new CartItem[NUM_BOOK];
+	public CartItem[] mCartItem = new CartItem[NUM_BOOK];
 	// 장바구니 담은 책 권수
-    int mCartCount = 0;
+    public int mCartCount = 0;
 	
 	public Cart() {
 		

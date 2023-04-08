@@ -1,3 +1,4 @@
+package ch_6.com.market.bookitem;
 // 도서 정보 관리 클래스 
 
 public class Book extends Item{

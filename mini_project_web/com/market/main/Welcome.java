@@ -1,4 +1,12 @@
+package ch_6.com.market.main;
 import java.util.Scanner;
+import ch_6.com.market.bookitem.Book;
+import ch_6.com.market.cart.Cart;
+import ch_6.com.market.member.Admin;
+import ch_6.com.market.member.User;
+
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class Welcome {
 	static final int NUM_BOOK = 3;
@@ -94,24 +102,23 @@ public class Welcome {
 		System.out.println("9. 관리자 로그인");
 		System.out.println("********************************************");
 	}
-	// 저장되어있는 고객의 이름과 전화번호를 불러온다.
+	// 1. 고객 정보 확인하기 // 저장되어있는 고객의 이름과 전화번호를 불러온다.
 	public static void menuGuestInfo(String name, int mobile) {
 		System.out.println("현재 고객 정보: ");
 		System.out.println("이름: " + mUser.getName() + ", 연락처: " + mUser.getPhone());
 		
 	}
-	// 장바구니 추가 장바구니 리스트 출력
+	// 2. 장바구니 추가 장바구니 리스트 출력
 	public static void menuCartItemList() {	
 		if (mCart.mCartCount >= 0)
 			mCart.printCart();
 	}
-	// 장바구니 비우기
+	// 3. 장바구니 비우기
 	public static void menuCartClear() {
 		if (mCart.mCartCount == 0) 
 			System.out.println("장바구니에 항목이 없습니다.");
 		else {
 			System.out.println("장바구니의 모든 항목을 삭제하겠습니까? Y | N");
-//			Scanner input = new Scanner(System.in);
 			String str = input.nextLine();
 			
 			if (str.toUpperCase().equals("Y")) {
@@ -120,7 +127,7 @@ public class Welcome {
 			}
 		}
 	}
-	// 도서 목록 표시하기
+	// 4. 바구니에 항목 추가하기, 도서 목록 표시하기
 	public static void menuCartAddItem(Book[] booklist) {
 		
 		// BookList(도서정보) 불러옴.
@@ -170,15 +177,15 @@ public class Welcome {
 			  }else {
 				System.out.println("다시 입력해 주세요.");
 		    }// end else
-				
 		  }//end if(flag)
 	   }//end while
     }
+	// 5. 장바구니의 항목 수량 줄이기
 	public static void menuCartRemoveItemCount() {
 		System.out.println("5. 장바구니의 항목 수량 줄이기");
 	}
+	// 6. 장바구니의 항목 삭제하기
 	public static void menuCartRemoveItem() {
-//		System.out.println("6. 장바구니의 항목 삭제하기");
 		if(mCart.mCartCount == 0) {
 			System.out.println("장바구니에 항목이 없습니다.");
 		}else {
@@ -186,7 +193,6 @@ public class Welcome {
 			boolean quit = false;
 			while (!quit) {
 				System.out.println("장바구니에서 삭제할 도서의 ID를 입력하세요: ");
-//				Scanner input = new Scanner(System.in);
 				String str = input.nextLine();
 				boolean flag = false;
 				int numId = -1;
@@ -211,12 +217,60 @@ public class Welcome {
 		  }//end while
 		}// end else
 	}// end public
+	
+	// 7. 영수증 표시하기
 	public static void menuCartBill() {
-		System.out.println("7. 영수증 표시하기");
+
+		if (mCart.mCartCount == 0) System.out.println("장바구니에 항목이 없습니다.");
+		else { 
+			System.out.println("배송받을 분은 고객 정보와 같습니까? Y  |  N");
+			String str = input.nextLine();
+			// 고객 정보와 동일한 경우
+			if (str.toUpperCase().equals("Y")) {
+				System.out.println("배송지를 입력해주세요.");
+				String address = input.nextLine();
+				//mUser.getPhone()은 정수타입이다. 따라서, 문자타입으로 변환해준다.
+				printBill(mUser.getName(), String.valueOf(mUser.getPhone()), address);
+			}
+			else { // 고객 정보와 동일하지 않은 경우.
+				System.out.println("배송받을 고객명을 입력하세요.");
+				String name = input.nextLine();
+				System.out.println("배송받을 고객의 연락처를 입력하세요.");
+				String phone = input.nextLine();
+				System.out.println("배송받을 고객의 배송지를 입력해주세요.");
+				String address = input.nextLine();
+				printBill(name, phone, address);
+			}
+		}
 	}
+	// 7_1. 영수증 출력을 위한 메소드.
+	public static void printBill(String name, String phone, String address) {
+		//현재 날짜와 시간!! Fru apr 07 14:43:50 KST 2023(미국 스타일)	
+		Date date = new Date();
+		// 날짜스타일 수정할 객체 생성
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy년 MM월 dd일 HH시 mm분 SS");
+		String strDate = formatter.format(date);
+		System.out.println();
+		System.out.println("--------------배송받을 고객 정보--------------");
+		System.out.println("고객명: " + name + "\t\t연락처: " + phone);
+		System.out.println("배송지: " + address + "t\t발송일: " + strDate);
+		
+		// 장바구니에 담긴 항목 출력
+		mCart.printCart();
+		// 장바구니에 담긴 항목의 총금액 산출
+		int sum = 0;
+		for (int i = 0; i < mCart.mCartCount; i++)
+			sum += mCart.mCartItem[i].getTotalPrice();
+		// 장바구니에 담긴 항목의 총금액 출력
+		System.out.println("\t\t\t주문 총금액: " + sum + "원\n");
+		System.out.println("--------------------------------------");
+		System.out.println();	
+	}
+		
 	public static void menuExit() {
 		System.out.println("8. 종료");
 	}
+	// 9. 관리자 로그인
 	public static void menuAdminLogin() {
 		System.out.println("관리자 정보를 입력하세요.");
 //		Scanner input = new Scanner(System.in);
@@ -262,4 +316,5 @@ public class Welcome {
 	public static boolean isCartInBook(String bookId) {
 		return mCart.isCartInBook(bookId);
 	}
+
 }
